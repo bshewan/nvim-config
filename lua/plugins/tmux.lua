@@ -22,7 +22,7 @@ return {
   {
     "szw/vim-maximizer",
     keys = {
-      { "<leader>z", "<cmd>MaximizerToggle<cr>", desc = "Maximize Split" },
+      { "<leader>m", "<cmd>MaximizerToggle<cr>", desc = "Maximize Split" },
     },
   },
 }

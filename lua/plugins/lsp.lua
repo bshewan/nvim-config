@@ -7,7 +7,7 @@ return {
         vim.lsp.enable('asm_lsp')
         vim.lsp.enable('rust_analyzer')
         vim.lsp.enable('denols')
-        vim.lsp.enable('copilot')
+        -- vim.lsp.enable('copilot') -- classic copilot.vim is not an LSP
         vim.lsp.enable('pyright')
 
         vim.lsp.config('lua_ls', {

@@ -2,10 +2,7 @@
 -- KEYMAP CONFIGURATION
 -- =============================================================================
 
--- 1. SET LEADER KEY
--- Must happen before plugins are loaded (otherwise plugin mappings might fail)
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+-- Leader key is defined in init.lua
 
 local map = vim.keymap.set
 

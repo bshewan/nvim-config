@@ -3,7 +3,7 @@ return {
   dependencies = {
     -- Recommended for `ask()` and `select()`.
     -- Required for `snacks` provider.
-    { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
+    "folke/snacks.nvim",
   },
   config = function()
     ---@type opencode.Opts

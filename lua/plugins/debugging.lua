@@ -1,193 +1,186 @@
 return {
-  "mfussenegger/nvim-dap",
-  dependencies = {
-    --"rcarriga/nvim-dap-ui",
-    "nvim-neotest/nvim-nio",
-    "theHamsta/nvim-dap-virtual-text",
-    "jay-babu/mason-nvim-dap.nvim",
-    "igorlfs/nvim-dap-view",
-    "Jorenar/nvim-dap-disasm",
-  },
-  config = function()
-    local dap = require("dap")
---    local dapui = require("dapui")
-    local dapview = require("dap-view")
-    local vtext = require("nvim-dap-virtual-text")
+    "mfussenegger/nvim-dap",
+    dependencies = {
+        --"rcarriga/nvim-dap-ui",
+        "nvim-neotest/nvim-nio",
+        "theHamsta/nvim-dap-virtual-text",
+        "jay-babu/mason-nvim-dap.nvim",
+        "igorlfs/nvim-dap-view",
+        "Jorenar/nvim-dap-disasm",
+    },
+    keys = {
+        -- Function keys
+        { "<F5>",  function() require("dap").continue() end,        desc = "Debug: Continue" },
+        { "<F10>", function() require("dap").step_over() end,      desc = "Debug: Step Over" },
+        { "<F11>", function() require("dap").step_into() end,      desc = "Debug: Step Into" },
+        { "<F12>", function() require("dap").step_out() end,       desc = "Debug: Step Out" },
 
-    vtext.setup({
-        display_callback = function(variable, buf, stackframe, node, options)
-          if options.virt_text_pos == 'inline' then
-            return ' = ' .. variable.value
-          else
-            return variable.name .. ' = ' .. variable.value
-          end
+        -- <leader>d... layout
+        { "<leader>dc", function() require("dap").continue() end,  desc = "Debug: Continue" },
+        { "<leader>do", function() require("dap").step_over() end, desc = "Debug: Step Over" },
+        { "<leader>di", function() require("dap").step_into() end, desc = "Debug: Step Into" },
+        { "<leader>dO", function() require("dap").step_out() end,  desc = "Debug: Step Out" },
+
+        { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Debug: Breakpoint" },
+        { "<leader>dB", function()
+            require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
         end,
-    })
-
---    dapui.setup()
-
-    -- Auto-open UI
---    dap.listeners.before.attach.dapui_config = function() dapui.open() end
---    dap.listeners.before.launch.dapui_config = function() dapui.open() end
---    dap.listeners.before.event_terminated.dapui_config = function() dapui.close() end
---    dap.listeners.before.event_exited.dapui_config = function() dapui.close() end
-
-    require("dap-disasm").setup({
-        -- Optional settings
-      --show_registers = true,  -- Show registers at the top of the disassembly window
-      --show_instructions = true, -- Show instructions in the disassembly window
-      --instruction_count = 10,  -- Number of instructions to show
-    })
-
-    -- DAP View setup
-    dapview.setup({
-      winbar = {
-        sections = {
-          "watches",
-          "scopes",
-          "breakpoints",
-          "repl",
---          "disassembly",
+            desc = "Debug: Conditional Breakpoint",
         },
-      },
-      windows = {
-        terminal = {
-          start_hidden = false,
-        },
-      },
-    })
 
-    dap.listeners.after.event_initialized["dap-view"] = function() dapview.open() end
-    dap.listeners.before.event_terminated["dap-view"] = function() dapview.close() end
-    dap.listeners.before.event_exited["dap-view"] = function() dapview.close() end
+        { "<leader>dv", function() require("dap-view").toggle() end, desc = "Debug: Toggle View" },
+        { "<leader>dW", function() require("dap-view").show_view('watches') end, desc = "Debug: Show Watches" },
+        { "<leader>dC", function() require("dap-view").show_view('console') end, desc = "Debug: Show Console" },
+        { "<leader>dD", function() require("dap-view").show_view('disassembly') end, desc = "Debug: Show Console" },
+        { "<leader>dR", function() require("dap-view").show_view('repl') end, desc = "Debug: Show REPL" },
+        { "<leader>dS", function() require("dap-view").show_view('scopes') end, desc = "Debug: Show Scopes" },
 
--- 3. AUTOMATION: Open Layout on Start
-    dap.listeners.after.event_initialized["custom_layout"] = function()
-        -- We assume focus is on Source, so this creates: [Source] | [Disassembly]
-        vim.cmd("DapDisasm")
+        -- Close DAP integrated terminal(s) from source window                                                                   █
+        { "<leader>dt", function()
+            -- Remember where you are (source window)
+            local source_win = vim.api.nvim_get_current_win()
 
-        -- Force it to be a vertical split to the right of source
-        -- (If it opens horizontally by default, we move it)
-        vim.cmd("wincmd L")
-        vim.cmd("vertical resize 60")
-
-        -- We schedule this to ensure the UI is settled before splitting
-        vim.schedule(function()
-            -- A. Open the Sidebar (Far Right)
-            dapview.open()
-        end)
-    end
-
-    -- Close both on exit
-    dap.listeners.before.event_terminated["custom_layout"] = function()
-        dapview.close()
-        -- We must manually close the disassembly window if it's separate
-        -- (Optional: dap-disasm often closes itself, but this is safer)
-        for _, win in ipairs(vim.api.nvim_list_wins()) do
-            local buf = vim.api.nvim_win_get_buf(win)
-            if vim.api.nvim_buf_get_name(buf):match("Disassembly") then
-                vim.api.nvim_win_close(win, true)
+            -- Close all terminal windows in this tabpage
+            for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                local buf = vim.api.nvim_win_get_buf(win)
+                if vim.bo[buf].buftype == "terminal" then
+                    pcall(vim.api.nvim_win_close, win, true)
+                end
             end
-        end
-    end
 
-    -- Link the exited listener to the same function
-    dap.listeners.before.event_exited["custom_layout"] = dap.listeners.before.event_terminated["custom_layout"]
-
-    dap.adapters.codelldb = {
-      type = "server",
-      port = "${port}",
-      executable = {
-        command = "codelldb",
-        args = { "--port", "${port}" },
-      },
-    }
-
-    -- mason-nvim-dap setup for common adapters
-    require("mason-nvim-dap").setup({
-      ensure_installed = {
-        "codelldb",        -- C / C++ / Rust
-        "debugpy",         -- Python
-        "js-debug-adapter", -- TS / JS / Deno
-      },
-      automatic_installation = true,
-    })
-
-    -- 2. C/C++ CONFIGURATION
-    dap.configurations.c = {
-      {
-        name = "Launch with CodeLLDB",
-        type = "codelldb",
-        request = "launch",
-        program = function()
-          return vim.fn.input('Exe: ', vim.fn.getcwd() .. '/', 'file')
+            -- Restore focus to the source window if it still exists
+            if vim.api.nvim_win_is_valid(source_win) then
+                vim.api.nvim_set_current_win(source_win)
+            end
         end,
-        cwd = '${workspaceFolder}',
-        stopOnEntry = false,
-        console = "integratedTerminal",
-        args = function()
-          local input = vim.fn.input('Args: ')
-          return vim.split(input, " ", true)
-        end,
-
-        -- Auto-breakpoint at main
-        initCommands = function()
-          return { "breakpoint set --name main" }
-        end,
-      },
-    }
-    dap.configurations.cpp = dap.configurations.c
-    dap.configurations.rust = dap.configurations.c
-
-    -- Deno TypeScript configuration (via js-debug / pwa-node)
-    dap.configurations.typescript = {
-      {
-        name = "Deno: Launch current file",
-        type = "pwa-node",
-        request = "launch",
-        program = "${file}",
-        cwd = "${workspaceFolder}",
-        runtimeExecutable = "deno",
-        runtimeArgs = {
-          "run",
-          "--inspect-brk",
-          "--allow-all",
+            desc = "Debug: Close DAP terminal",
         },
-        attachSimplePort = 9229,
-      },
-    }
-    dap.configurations.javascript = dap.configurations.typescript
+    },
+    config = function()
+        local dap = require("dap")
+        -- local dapui = require("dapui")
+        local dapview = require("dap-view")
+        local vtext = require("nvim-dap-virtual-text")
 
-    -- NOTE: Rustaceanvim handles the Rust DAP automatically!
-    -- You do NOT need to configure Rust here.
+        vtext.setup({
+            display_callback = function(variable, buf, stackframe, node, options)
+                if options.virt_text_pos == 'inline' then
+                    return ' = ' .. variable.value
+                else
+                    return variable.name .. ' = ' .. variable.value
+                end
+            end,
+        })
 
-    -- Keymaps
-    local map = vim.keymap.set
+        -- dapui.setup()
 
-    -- Function keys (keep these for muscle memory)
-    map("n", "<F5>",  function() dap.continue()  end, { desc = "Debug: Continue" })
-    map("n", "<F10>", function() dap.step_over() end, { desc = "Debug: Step Over" })
-    map("n", "<F11>", function() dap.step_into() end, { desc = "Debug: Step Into" })
-    map("n", "<F12>", function() dap.step_out()  end, { desc = "Debug: Step Out" })
+        -- Auto-open UI (disabled)
+        -- dap.listeners.before.attach.dapui_config = function() dapui.open() end
+        -- dap.listeners.before.launch.dapui_config = function() dapui.open() end
+        -- dap.listeners.before.event_terminated.dapui_config = function() dapui.close() end
+        -- dap.listeners.before.event_exited.dapui_config = function() dapui.close() end
 
-    -- <leader>d... layout
-    map("n", "<leader>dc", function() dap.continue()    end, { desc = "Debug: Continue" })
-    map("n", "<leader>do", function() dap.step_over()   end, { desc = "Debug: Step Over" })
-    map("n", "<leader>di", function() dap.step_into()   end, { desc = "Debug: Step Into" })
-    map("n", "<leader>dO", function() dap.step_out()    end, { desc = "Debug: Step Out" })
+        require("dap-disasm").setup({
+            -- Optional settings
+            show_registers = true,
+            show_instructions = true,
+            instruction_count = 10,
+        })
 
-    map("n", "<leader>db", function() dap.toggle_breakpoint() end, { desc = "Debug: Breakpoint" })
-    map("n", "<leader>dB", function()
-      dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
-    end, { desc = "Debug: Conditional Breakpoint" })
+        -- DAP View setup
+        dapview.setup({
+            winbar = {
+                sections = {
+                    "console",
+                    "watches",
+                    "scopes",
+                    "breakpoints",
+                    "repl",
+                    "disassembly",
+                },
+                default_section = "console",
+            },
+            windows = {
+                position = "right",
+                terminal = {
+                    start_hidden = false,
+                },
+            },
+        })
 
---    map("n", "<leader>du", function() dapui.toggle() end, { desc = "Debug: Toggle UI" })
-    map("n", "<leader>dv", function() dapview.toggle() end, { desc = "Debug: Toggle View" })
+        -- Only auto-close dap-view; open it manually with <leader>dv
+        -- dap.listeners.after.event_initialized["dap-view"] = function() dapview.open() end
+        dap.listeners.before.event_terminated["dap-view"] = function() dapview.close() end
+        dap.listeners.before.event_exited["dap-view"] = function() dapview.close() end
 
-    -- Deno quick-launch
-    map("n", "<leader>dD", function()
-      dap.run(dap.configurations.typescript[1])
-    end, { desc = "Debug: Deno (current file)" })
-   end,
+        --------------------------------------------------------------------
+        -- Adapters & configurations
+        --------------------------------------------------------------------
+        dap.adapters.codelldb = {
+            type = "server",
+            port = "${port}",
+            executable = {
+                command = "codelldb",
+                args = { "--port", "${port}" },
+            },
+        }
+
+        -- mason-nvim-dap setup for common adapters
+        require("mason-nvim-dap").setup({
+            ensure_installed = {
+                "codelldb",         -- C / C++ / Rust
+                "debugpy",          -- Python
+                "js-debug-adapter", -- TS / JS / Deno
+            },
+            automatic_installation = true,
+        })
+
+        -- 2. C/C++ CONFIGURATION
+        dap.configurations.c = {
+            {
+                name = "Launch with CodeLLDB",
+                type = "codelldb",
+                request = "launch",
+                program = function()
+                    return vim.fn.input('Exe: ', vim.fn.getcwd() .. '/', 'file')
+                end,
+                cwd = '${workspaceFolder}',
+                stopOnEntry = false,
+                console = "integratedTerminal",
+                args = function()
+                    local input = vim.fn.input('Args: ')
+                    return vim.split(input, " ", true)
+                end,
+
+                -- Auto-breakpoint at main
+                initCommands = function()
+                    return { "breakpoint set --name main" }
+                end,
+            },
+        }
+        dap.configurations.cpp = dap.configurations.c
+        dap.configurations.rust = dap.configurations.c
+
+        -- Deno TypeScript configuration (via js-debug / pwa-node)
+        dap.configurations.typescript = {
+            {
+                name = "Deno: Launch current file",
+                type = "pwa-node",
+                request = "launch",
+                program = "${file}",
+                cwd = "${workspaceFolder}",
+                runtimeExecutable = "deno",
+                runtimeArgs = {
+                    "run",
+                    "--inspect-brk",
+                    "--allow-all",
+                },
+                attachSimplePort = 9229,
+            },
+        }
+        dap.configurations.javascript = dap.configurations.typescript
+
+        -- NOTE: Rustaceanvim handles the Rust DAP automatically!
+        -- You do NOT need to configure Rust here.
+    end,
 }
-

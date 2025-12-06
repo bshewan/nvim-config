@@ -3,9 +3,6 @@ return {
   lazy = false,    -- Load immediately
   priority = 1000, -- Load before everything else
   config = function()
-    -- 1. Essential for modern terminal colors
-    vim.opt.termguicolors = true
-
     require("tokyonight").setup({
       style = "night", -- Options: storm, moon, night, day
       transparent = false, -- Change to true if you want terminal background
