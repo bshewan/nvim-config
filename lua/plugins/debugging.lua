@@ -109,7 +109,7 @@ return {
         })
 
         -- Only auto-close dap-view; open it manually with <leader>dv
-        -- dap.listeners.after.event_initialized["dap-view"] = function() dapview.open() end
+        dap.listeners.after.event_initialized["dap-view"] = function() dapview.open() end
         dap.listeners.before.event_terminated["dap-view"] = function() dapview.close() end
         dap.listeners.before.event_exited["dap-view"] = function() dapview.close() end
 
