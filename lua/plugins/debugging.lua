@@ -31,7 +31,7 @@ return {
         { "<leader>dv", function() require("dap-view").toggle() end, desc = "Debug: Toggle View" },
         { "<leader>dW", function() require("dap-view").show_view('watches') end, desc = "Debug: Show Watches" },
         { "<leader>dC", function() require("dap-view").show_view('console') end, desc = "Debug: Show Console" },
-        { "<leader>dD", function() require("dap-view").show_view('disassembly') end, desc = "Debug: Show Console" },
+        { "<leader>dD", function() require("dap-view").show_view('disassembly') end, desc = "Debug: Show Disassembly" },
         { "<leader>dR", function() require("dap-view").show_view('repl') end, desc = "Debug: Show REPL" },
         { "<leader>dS", function() require("dap-view").show_view('scopes') end, desc = "Debug: Show Scopes" },
 
@@ -142,7 +142,13 @@ return {
                 type = "codelldb",
                 request = "launch",
                 program = function()
-                    return vim.fn.input('Exe: ', vim.fn.getcwd() .. '/', 'file')
+                    local default_path = vim.fn.getcwd() .. '/bin/program'
+                    local input = vim.fn.input('Exe: ', vim.fn.getcwd() .. '/', 'file')
+
+                    if (input == vim.fn.getcwd() .. '/') or (input == "") then
+                        return default_path
+                    end
+                    return input
                 end,
                 cwd = '${workspaceFolder}',
                 stopOnEntry = false,
