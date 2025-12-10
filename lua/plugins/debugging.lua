@@ -125,6 +125,21 @@ return {
             },
         }
 
+        dap.adapters.gdb = {
+            type = "executable",
+            command = "gdb",
+            args = { "-i", "dap" },
+        }
+
+        dap.adapters.cppdbg = {
+            id = "cppdbg",
+            type = "executable",
+            command = vim.fn.stdpath("data") .. "/mason/bin/OpenDebugAD7",
+            options = {
+                detached = false,
+            },
+        }
+
         -- mason-nvim-dap setup for common adapters
         require("mason-nvim-dap").setup({
             ensure_installed = {
@@ -162,6 +177,35 @@ return {
                 initCommands = function()
                     return { "breakpoint set --name main" }
                 end,
+            },
+            {
+                name = "Launch with GDB",
+                type = "cppdbg",
+                request = "launch",
+                program = function()
+                    local default_path = vim.fn.getcwd() .. '/bin/program'
+                    local input = vim.fn.input('Exe: ', vim.fn.getcwd() .. '/', 'file')
+
+                    if (input == vim.fn.getcwd() .. '/') or (input == "") then
+                        return default_path
+                    end
+                    return input
+                end,
+                cwd = '${workspaceFolder}',
+                stopAtEntry = true,
+                args = function()
+                    local input = vim.fn.input('Args: ')
+                    return vim.split(input, " ", true)
+                end,
+                MIMode = "gdb",
+                miDebuggerPath = "/usr/bin/gdb",
+                setupCommands = {
+                    {
+                        text = "-enable-pretty-printing",
+                        description = "enable pretty printing",
+                        ignoreFailures = false,
+                    },
+                },
             },
         }
         dap.configurations.cpp = dap.configurations.c
