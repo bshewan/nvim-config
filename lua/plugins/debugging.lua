@@ -63,7 +63,7 @@ return {
         local vtext = require("nvim-dap-virtual-text")
 
         vtext.setup({
-            display_callback = function(variable, buf, stackframe, node, options)
+            display_callback = function(variable, _, _, _, options)
                 if options.virt_text_pos == 'inline' then
                     return ' = ' .. variable.value
                 else
@@ -170,7 +170,7 @@ return {
                 console = "integratedTerminal",
                 args = function()
                     local input = vim.fn.input('Args: ')
-                    return vim.split(input, " ", true)
+                    return vim.split(input, " ", {plain = true})
                 end,
 
                 -- Auto-breakpoint at main
@@ -195,7 +195,7 @@ return {
                 stopAtEntry = true,
                 args = function()
                     local input = vim.fn.input('Args: ')
-                    return vim.split(input, " ", true)
+                    return vim.split(input, " ", {plain = true})
                 end,
                 MIMode = "gdb",
                 miDebuggerPath = "/usr/bin/gdb",

@@ -20,8 +20,8 @@ return {
       { "<leader>co", "<cmd>CompilerToggle<cr>", desc = "Compiler: Toggle Output" },
 
       -- FORCE RUN MAKE (Bypasses scanning)
-      { 
-        "<leader>cm", 
+      {
+        "<leader>cm",
         function()
           local overseer = require("overseer")
 
@@ -33,28 +33,28 @@ return {
             strategy = { "jobstart" },
             cmd = { "make", "run" }, -- <--- This is the exact command it will run in terminal
             cwd = vim.fn.getcwd(),
-            components = { 
-              "default", 
-              { "open_output", open_on_start = true }, 
+            components = {
+              "default",
+              { "open_output", open_on_start = true },
               -- Auto-dispose after 5 seconds if successful
               { "on_complete_dispose", timeout = 5, statuses = { "SUCCESS" } }
             }
           })
           task:start()
-        end, 
-        desc = "Run Make (Force)" 
+        end,
+        desc = "Run Make (Force)"
       },
     },
     opts = {},
   },
-  
+
   -- The Task Runner Engine (Overseer)
   {
     "stevearc/overseer.nvim",
     opts = {
       -- 1. SPEED UP: Only look for Makefiles and VSCode tasks
       templates = { "make", "vscode" },
-      
+
       -- 2. UI Configuration
       task_list = {
         direction = "bottom",

@@ -1,6 +1,6 @@
 return {
-    { 
-        "nvim-tree/nvim-web-devicons", 
+    {
+        "nvim-tree/nvim-web-devicons",
         opts = {
             -- your personal icons can go here (to override)
             -- you can specify color or cterm_color instead of specifying both of them

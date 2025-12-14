@@ -2,7 +2,6 @@ return {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
-    ---@type snacks.Config
     opts = {
         bigfile = { enabled = true },
         dashboard = { enabled = true },
@@ -13,8 +12,8 @@ return {
             enabled = true,
             timeout = 3000,
         },
-        picker = { 
-            enabled = true, 
+        picker = {
+            enabled = true,
             sources = {
                 explorer = {
                     watch = true,
@@ -38,7 +37,6 @@ return {
         }
     },
     keys = {
-        -- Top Pickers & Explorer
         { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
         { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
         { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
@@ -114,8 +112,8 @@ return {
         { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
         { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
         { "<c-/>",      function() Snacks.terminal() end, desc = "Toggle Terminal" },
-        { "<Esc><Esc>", "<c-\\><c-n>", desc = "Exit Terminal Mode", mode = { "t" } },
         { "<c-_>",      function() Snacks.terminal() end, desc = "which_key_ignore" },
+        { "<Esc><Esc>", "<c-\\><c-n>", desc = "Exit Terminal Mode", mode = { "t" } },
         { "]]",         function() Snacks.words.jump(vim.v.count1) end, desc = "Next Reference", mode = { "n", "t" } },
         { "[[",         function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev Reference", mode = { "n", "t" } },
         {
@@ -151,11 +149,11 @@ return {
 
                 -- Override print to use snacks for `:=` command
                 if vim.fn.has("nvim-0.11") == 1 then
-                    vim._print = function(_, ...)
+                    vim.print = function(_, ...)
                         dd(...)
                     end
                 else
-                    vim.print = _G.dd 
+                    vim.print = _G.dd
                 end
 
                 -- Create some toggle mappings

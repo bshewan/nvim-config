@@ -16,7 +16,7 @@ return {
       snippet = {
         expand = function(args) luasnip.lsp_expand(args.body) end,
       },
-      
+
       -- Selection behavior
       completion = { completeopt = "menu,menuone,noinsert" },
 
@@ -25,13 +25,13 @@ return {
         ["<C-b>"] = cmp.mapping.scroll_docs(-4),
         ["<C-f>"] = cmp.mapping.scroll_docs(4),
         ["<C-Space>"] = cmp.mapping.complete(),
-        
+
         -- ENTER: Accept menu item
         ["<CR>"] = cmp.mapping.confirm({ select = true }),
 
         -- TAB: REMOVED to let Copilot handle it!
         -- If you don't use Copilot, you can map this to confirm()
-        
+
         -- Navigation
         ["<Down>"] = cmp.mapping.select_next_item(),
         ["<Up>"] = cmp.mapping.select_prev_item(),
@@ -45,7 +45,7 @@ return {
         { name = "buffer" },
         { name = "path" },
       }),
-      
+
       -- Pretty Icons
       formatting = {
         format = function(entry, vim_item)

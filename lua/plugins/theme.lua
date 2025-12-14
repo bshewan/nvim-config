@@ -10,7 +10,7 @@ return {
         sidebars = "transparent",
         floats = "dark",
       },
-      
+
       -- OPTIONAL: High-Visibility Overrides
       -- If your red underlines ever disappear again, uncomment this block:
       -- on_highlights = function(hl, c)
