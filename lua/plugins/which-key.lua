@@ -13,6 +13,11 @@ return {
       { "<leader>c",  group = "+code" },      -- Code / compiler
       { "<leader>d",  group = "+debug" },     -- DAP
       { "<leader>a",  group = "+ai" },        -- AI tools
+      { "<leader>b",  group = "+buffer" },
+      { "<leader>t",  group = "+telescope" },
+      { "<leader>g",  group = "+git" },
+      { "<leader>s",  group = "+search" },
+      { "<leader>u",  group = "+user" },
       { "<leader>cc", group = "+compiler" },  -- more specific compiler subgroup
     },
   },

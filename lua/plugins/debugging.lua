@@ -207,6 +207,22 @@ return {
                     },
                 },
             },
+            {
+                name = "Attach to GDBserver",
+                type = "gdb",
+                request = "attach",
+                target = "localhost:1234",
+                program = function()
+                    local default_path = vim.fn.getcwd() .. '/bin/program'
+                    local input = vim.fn.input('Exe: ', vim.fn.getcwd() .. '/', 'file')
+
+                    if (input == vim.fn.getcwd() .. '/') or (input == "") then
+                        return default_path
+                    end
+                    return input
+                end,
+                cwd = '${workspaceFolder}',
+            },
         }
         dap.configurations.cpp = dap.configurations.c
         dap.configurations.rust = dap.configurations.c
