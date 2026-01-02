@@ -5,7 +5,7 @@ return {
     opts = {
         bigfile = { enabled = true },
         dashboard = { enabled = true },
-        explorer = { enabled = true },
+        explorer = { enabled = false },
         indent = { enabled = true },
         input = { enabled = true },
         notifier = {
@@ -15,9 +15,7 @@ return {
         picker = {
             enabled = true,
             sources = {
-                explorer = {
-                    watch = true,
-                },
+                explorer = { watch = true },
                 projects = {
                     dev = { "~" },
                     patterns = { ".git", "lua", "src", "package.json", "Makefile" },
